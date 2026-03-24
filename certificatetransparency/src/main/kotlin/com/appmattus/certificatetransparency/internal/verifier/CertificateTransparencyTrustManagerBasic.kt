@@ -75,12 +75,15 @@ internal class CertificateTransparencyTrustManagerBasic(
     override fun verifyCertificateTransparency(host: String, certificates: List<Certificate>): VerificationResult =
         ctBase.verifyCertificateTransparency(host, certificates)
 
-    override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String) = delegate.checkClientTrusted(
-        chain,
-        authType
-    )
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        require(!chain.isNullOrEmpty()) { "checkClientTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkClientTrusted: authType is null or empty" }
+        delegate.checkClientTrusted(chain, authType)
+    }
 
-    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String) {
+    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
         delegate.checkServerTrusted(chain, authType)
 
         val leafCertificate = chain.first()
@@ -101,7 +104,11 @@ internal class CertificateTransparencyTrustManagerBasic(
     // Called through reflection by X509TrustManagerExtensions on Android
     // Added in API level 17
     @Suppress("unused")
-    fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String, host: String): List<X509Certificate> {
+    fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?, host: String?): List<X509Certificate> {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
+        require(host != null) { "checkServerTrusted: host is null" }
+
         @Suppress("UNCHECKED_CAST")
         val certs = checkServerTrustedMethodApi17!!.invoke(delegate, chain, authType, host) as List<X509Certificate>
 
