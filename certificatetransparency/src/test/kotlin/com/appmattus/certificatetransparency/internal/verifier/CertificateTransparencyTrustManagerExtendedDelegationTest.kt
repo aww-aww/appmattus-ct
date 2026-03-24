@@ -94,29 +94,34 @@ class CertificateTransparencyTrustManagerExtendedDelegationTest {
 
     @Test
     fun checkClientTrusted() {
+        val certs = arrayOf(mock<X509Certificate>())
         // When we call checkClientTrusted
-        subject.checkClientTrusted(emptyArray(), "AUTH")
+        subject.checkClientTrusted(certs, "AUTH")
 
         // Then the call is delegated
-        verify(x509ExtendedTrustManager).checkClientTrusted(emptyArray(), "AUTH")
+        verify(x509ExtendedTrustManager).checkClientTrusted(certs, "AUTH")
     }
 
     @Test
     fun checkClientTrustedSocket() {
+        val certs = arrayOf(mock<X509Certificate>())
+        val socket = mock<Socket>()
         // When we call checkClientTrusted
-        subject.checkClientTrusted(emptyArray(), "AUTH", mock<Socket>())
+        subject.checkClientTrusted(certs, "AUTH", socket)
 
         // Then the call is delegated
-        verify(x509ExtendedTrustManager).checkClientTrusted(eq(emptyArray()), eq("AUTH"), any<Socket>())
+        verify(x509ExtendedTrustManager).checkClientTrusted(certs, "AUTH", socket)
     }
 
     @Test
     fun checkClientTrustedSslEngine() {
+        val certs = arrayOf(mock<X509Certificate>())
+        val engine = mock<SSLEngine>()
         // When we call checkClientTrusted
-        subject.checkClientTrusted(emptyArray(), "AUTH", mock<SSLEngine>())
+        subject.checkClientTrusted(certs, "AUTH", engine)
 
         // Then the call is delegated
-        verify(x509ExtendedTrustManager).checkClientTrusted(eq(emptyArray()), eq("AUTH"), any<SSLEngine>())
+        verify(x509ExtendedTrustManager).checkClientTrusted(certs, "AUTH", engine)
     }
 
     @Test

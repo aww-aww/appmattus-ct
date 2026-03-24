@@ -68,11 +68,12 @@ class CertificateTransparencyTrustManagerBasicDelegationTest {
 
     @Test
     fun checkClientTrusted() {
+        val certs = arrayOf(mock<X509Certificate>())
         // When we call checkClientTrusted
-        subject.checkClientTrusted(emptyArray(), "AUTH")
+        subject.checkClientTrusted(certs, "AUTH")
 
         // Then the call is delegated
-        verify(x509TrustManager).checkClientTrusted(emptyArray(), "AUTH")
+        verify(x509TrustManager).checkClientTrusted(certs, "AUTH")
     }
 
     @Test

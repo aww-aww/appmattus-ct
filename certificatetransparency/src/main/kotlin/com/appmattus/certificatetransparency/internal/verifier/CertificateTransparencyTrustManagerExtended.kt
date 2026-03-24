@@ -97,17 +97,28 @@ internal class CertificateTransparencyTrustManagerExtended(
     override fun verifyCertificateTransparency(host: String, certificates: List<Certificate>): VerificationResult =
         ctBase.verifyCertificateTransparency(host, certificates)
 
-    override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String) =
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        require(!chain.isNullOrEmpty()) { "checkClientTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkClientTrusted: authType is null or empty" }
         delegate.checkClientTrusted(chain, authType)
-
-    override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String, socket: Socket) =
-        if (delegate is X509ExtendedTrustManager) delegate.checkClientTrusted(chain, authType, socket) else Unit
-
-    override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String, engine: SSLEngine) {
-        if (delegate is X509ExtendedTrustManager) delegate.checkClientTrusted(chain, authType, engine) else Unit
     }
 
-    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String, socket: Socket) {
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?, socket: Socket?) {
+        require(!chain.isNullOrEmpty()) { "checkClientTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkClientTrusted: authType is null or empty" }
+        if (delegate is X509ExtendedTrustManager) delegate.checkClientTrusted(chain, authType, socket)
+    }
+
+    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?, engine: SSLEngine?) {
+        require(!chain.isNullOrEmpty()) { "checkClientTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkClientTrusted: authType is null or empty" }
+        if (delegate is X509ExtendedTrustManager) delegate.checkClientTrusted(chain, authType, engine)
+    }
+
+    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?, socket: Socket?) {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
+        require(socket != null) { "checkServerTrusted: socket is null" }
         if (delegate is X509ExtendedTrustManager) delegate.checkServerTrusted(chain, authType, socket)
 
         val commonName = socket.peerName
@@ -127,7 +138,10 @@ internal class CertificateTransparencyTrustManagerExtended(
             else -> address.toString()
         }
 
-    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String, engine: SSLEngine) {
+    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?, engine: SSLEngine?) {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
+        require(engine != null) { "checkServerTrusted: engine is null" }
         if (delegate is X509ExtendedTrustManager) delegate.checkServerTrusted(chain, authType, engine)
 
         val commonName = engine.peerHost
@@ -141,7 +155,9 @@ internal class CertificateTransparencyTrustManagerExtended(
         }
     }
 
-    override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String) {
+    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
         delegate.checkServerTrusted(chain, authType)
 
         val leafCertificate = chain.first()
@@ -162,7 +178,11 @@ internal class CertificateTransparencyTrustManagerExtended(
     // Called through reflection by X509TrustManagerExtensions on Android
     // Added in API level 17
     @Suppress("unused")
-    fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String, host: String): List<X509Certificate> {
+    fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?, host: String?): List<X509Certificate> {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
+        require(host != null) { "checkServerTrusted: host is null" }
+
         @Suppress("UNCHECKED_CAST")
         val certs = checkServerTrustedMethodApi17!!.invoke(delegate, chain, authType, host) as List<X509Certificate>
 
@@ -181,12 +201,16 @@ internal class CertificateTransparencyTrustManagerExtended(
     // Added in API level 36
     @Suppress("unused")
     fun checkServerTrusted(
-        chain: Array<out X509Certificate>,
+        chain: Array<out X509Certificate>?,
         ocspData: ByteArray?,
         tlsSctData: ByteArray?,
-        authType: String,
-        host: String
+        authType: String?,
+        host: String?
     ): List<X509Certificate> {
+        require(!chain.isNullOrEmpty()) { "checkServerTrusted: X509Certificate array is null or empty" }
+        require(!authType.isNullOrEmpty()) { "checkServerTrusted: authType is null or empty" }
+        require(host != null) { "checkServerTrusted: host is null" }
+
         @Suppress("UNCHECKED_CAST")
         val certs = checkServerTrustedMethodApi36!!.invoke(delegate, chain, ocspData, tlsSctData, authType, host) as List<X509Certificate>
 
